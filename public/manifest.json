@@ -1,0 +1,7 @@
+{
+  "name": "My Board",
+  "short_name": "Board",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "orientation": "portrait"
+}
