@@ -1,5 +1,12 @@
 'use strict';
 
+import { initializeApp } from 'firebase/app';
+import {
+  getAuth,
+  onAuthStateChanged,
+} from 'firebase/auth';
+import { getFirebaseConfig } from './firebase-config.js';
+
 function signIn() {
   // TODO: Complete this function.
 }
@@ -22,32 +29,32 @@ function isUserSignedIn() {
 function loadMessages() {
   // TODO: Complete this function.
   // Create the query to load the last 12 messages and listen for new ones.
-  // var query = firebase.firestore()....
+  // var query = undefined;
 
   // Start listening to the query.
-  query.onSnapshot(function (snapshot) {
-    snapshot.docChanges().forEach(function (change) {
-      // TODO
-      // Call deleteMessage when message is removed.
-      // Call displayMessage when message is added.
-    });
-  });
+  // onSnapshot(query, function(snapshot) {
+  //   snapshot.docChanges().forEach(function(change) {
+  //     // TODO
+  //     // Call deleteMessage when message is removed.
+  //     // Call displayMessage when message is added.
+  //   });
+  // });
 }
 
 // Initiate firebase auth.
 function initFirebaseAuth() {
   // Listen to auth state changes.
-  firebase.auth().onAuthStateChanged(authStateObserver);
+  onAuthStateChanged(getAuth(), authStateObserver);
 }
 
 // Returns the signed-in user's profile Pic URL.
 function getProfilePicUrl() {
-  return firebase.auth().currentUser.photoURL || '/images/profile_placeholder.png';
+  return getAuth().currentUser.photoURL || '/images/profile_placeholder.png';
 }
 
 // Returns the signed-in user's display name.
 function getUserName() {
-  return firebase.auth().currentUser.displayName;
+  return getAuth().currentUser.displayName;
 }
 
 // Triggered when the send new message form is submitted.
@@ -200,28 +207,16 @@ function toggleButton() {
   }
 }
 
-// Checks that the Firebase SDK has been correctly setup and configured.
-function checkSetup() {
-  if (!window.firebase || !(firebase.app instanceof Function) || !firebase.app().options) {
-    window.alert('You have not configured and imported the Firebase SDK. ' +
-      'Make sure you go through the codelab setup instructions and make ' +
-      'sure you are running the codelab using `firebase serve`');
-  }
-}
-
-// Checks that Firebase has been imported.
-checkSetup();
-
 // Shortcuts to DOM Elements.
-var messageListElement = document.getElementById('messages');
-var messageFormElement = document.getElementById('message-form');
-var messageInputElement = document.getElementById('message');
-var submitButtonElement = document.getElementById('submit');
-var imageButtonElement = document.getElementById('submitImage');
-var userNameElement = document.getElementById('user-name');
-var signInButtonElement = document.getElementById('sign-in');
-var signOutButtonElement = document.getElementById('sign-out');
-var noMessageElement = document.getElementById('no-message');
+const messageListElement = document.getElementById('messages');
+const messageFormElement = document.getElementById('message-form');
+const messageInputElement = document.getElementById('message');
+const submitButtonElement = document.getElementById('submit');
+const imageButtonElement = document.getElementById('submitImage');
+const userNameElement = document.getElementById('user-name');
+const signInButtonElement = document.getElementById('sign-in');
+const signOutButtonElement = document.getElementById('sign-out');
+const noMessageElement = document.getElementById('no-message');
 
 // Saves message on form submit.
 messageFormElement.addEventListener('submit', onMessageFormSubmit);
@@ -232,7 +227,9 @@ signInButtonElement.addEventListener('click', signIn);
 messageInputElement.addEventListener('keyup', toggleButton);
 messageInputElement.addEventListener('change', toggleButton);
 
-// initialize Firebase
+// Initialize Firebase
+const firebaseAppConfig = getFirebaseConfig();
+initializeApp(firebaseAppConfig);
 initFirebaseAuth();
 
 // We load currently existing chat messages and listen to new ones.
