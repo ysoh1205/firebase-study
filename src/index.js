@@ -4,41 +4,75 @@ import { initializeApp } from 'firebase/app';
 import {
   getAuth,
   onAuthStateChanged,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
 } from 'firebase/auth';
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  query,
+  orderBy,
+  limit,
+  onSnapshot,
+  setDoc,
+  updateDoc,
+  doc,
+  serverTimestamp,
+} from "firebase/firestore";
+import {
+  getStorage,
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+} from "firebase/storage"
 import { getFirebaseConfig } from './firebase-config.js';
 
-function signIn() {
-  // TODO: Complete this function.
+async function signIn() {
+  var provider = new GoogleAuthProvider();
+  await signInWithPopup(getAuth(), provider);
 }
 
-function signOut() {
-  // TODO: Complete this function.
+function signOutUser() {
+  signOut(getAuth());
 }
 
 // Saves a new message to the Cloud Firestore.
 function saveMessage(messageText) {
-  // TODO: Complete this function.
+  try {
+    addDoc(collection(getFirestore(), 'messages'), {
+      name: getUserName(),
+      text: messageText,
+      profilePicUrl: getProfilePicUrl(),
+      timestamp: serverTimestamp()
+    });
+  }
+  catch(error) {
+    console.error('Error writing new message to Firebase Database', error);
+  }
 }
 
 // Returns true if a user is signed-in.
 function isUserSignedIn() {
-  // TODO: Complete this function.
+  return !!getAuth().currentUser;
 }
 
 // Loads chat messages history and listens for upcoming ones.
 function loadMessages() {
-  // TODO: Complete this function.
-  // Create the query to load the last 12 messages and listen for new ones.
-  // var query = undefined;
-
-  // Start listening to the query.
-  // onSnapshot(query, function(snapshot) {
-  //   snapshot.docChanges().forEach(function(change) {
-  //     // TODO
-  //     // Call deleteMessage when message is removed.
-  //     // Call displayMessage when message is added.
-  //   });
-  // });
+  const recentMessagesQuery = query(collection(getFirestore(), 'messages'), orderBy('timestamp', 'desc'), limit(12));
+  
+  onSnapshot(recentMessagesQuery, function(snapshot) {
+    snapshot.docChanges().forEach(function(change) {
+      if (change.type === 'removed') {
+        deleteMessage(change.doc.id);
+      } else {
+        var message = change.doc.data();
+        displayMessage(change.doc.id, message.timestamp, message.name,
+                      message.text, message.profilePicUrl, message.imageUrl);
+      }
+    });
+  });
 }
 
 // Initiate firebase auth.
@@ -220,7 +254,7 @@ const noMessageElement = document.getElementById('no-message');
 
 // Saves message on form submit.
 messageFormElement.addEventListener('submit', onMessageFormSubmit);
-signOutButtonElement.addEventListener('click', signOut);
+signOutButtonElement.addEventListener('click', signOutUser);
 signInButtonElement.addEventListener('click', signIn);
 
 // Toggle for the button.
@@ -229,7 +263,7 @@ messageInputElement.addEventListener('change', toggleButton);
 
 // Initialize Firebase
 const firebaseAppConfig = getFirebaseConfig();
-initializeApp(firebaseAppConfig);
+const app = initializeApp(firebaseAppConfig);
 initFirebaseAuth();
 
 // We load currently existing chat messages and listen to new ones.
