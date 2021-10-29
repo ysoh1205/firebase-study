@@ -148,8 +148,7 @@ var MESSAGE_TEMPLATE =
   '<div class="media-content"><div class="content">' +
   '<div class="name"></div>' +
   '<p class="text"></p>' +
-  '</div></div>' +
-  '<button class="edit-button" id="edit">Edit</button>';
+  '</div></div>';
 
 // Adds a size to Google Profile pics URLs.
 function addSizeToGoogleProfilePic(url) {
@@ -252,7 +251,7 @@ const userNameElement = document.getElementById('user-name');
 const signInButtonElement = document.getElementById('sign-in');
 const signOutButtonElement = document.getElementById('sign-out');
 const noMessageElement = document.getElementById('no-message');
-const editButtonElement = document.getElementById('edit');
+//const editButtonElement = document.getElementById('edit');
 
 // Saves message on form submit.
 messageFormElement.addEventListener('submit', onMessageFormSubmit);
